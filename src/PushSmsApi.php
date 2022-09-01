@@ -23,7 +23,7 @@ class PushSmsApi
         $this->token = Arr::get($config, 'token');
 
         $this->client = new HttpClient([
-            'timeout' => 5,
+            'timeout'         => 5,
             'connect_timeout' => 5,
         ]);
     }
@@ -36,26 +36,19 @@ class PushSmsApi
      */
     public function send($params)
     {
-        $base = [
-            'token'   => $this->token,
-        ];
-
-        if (Arr::has($params,'phone')) {
+        if (Arr::has($params, 'phone')) {
             $this->endpoint = 'https://api.pushsms.ru/api/v1/delivery';
-        }
-        else {
+        } else {
             $this->endpoint = 'https://api.pushsms.ru/api/v1/bulk_delivery';
         }
 
-        $params = array_merge($base, array_filter($params));
-
         try {
-            $response = $this->client->request('POST', $this->endpoint, ['form_params' => $params]);
+            $response = $this->client->request('POST', $this->endpoint, ['form_params' => array_filter($params), 'headers' => ['Authorization' => 'Bearer ' . $this->token]]);
 
-            $response = json_decode((string) $response->getBody(), true);
+            $response = json_decode((string)$response->getBody(), true);
 
-            if (Arr::get($response,'meta.code') !== 200) {
-                throw new \DomainException(Arr::get($response,'meta.message'), Arr::get($response,'meta.code'));
+            if (Arr::get($response, 'meta.code') !== 200) {
+                throw new \DomainException(Arr::get($response, 'meta.message'), Arr::get($response, 'meta.code'));
             }
 
             return $response;
