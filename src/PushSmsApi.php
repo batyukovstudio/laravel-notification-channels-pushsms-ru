@@ -5,6 +5,7 @@ namespace NotificationChannels\PushSMS;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
+use NotificationChannels\PushSMS\ApiActions\Interfaces\ApiAction;
 use NotificationChannels\PushSMS\Exceptions\CouldNotSendNotification;
 
 class PushSmsApi
@@ -13,19 +14,31 @@ class PushSmsApi
     protected $client;
 
     /** @var string */
-    protected $endpoint;
-
-    /** @var string */
     protected $token;
 
-    public function __construct(array $config)
-    {
-        $this->token = Arr::get($config, 'token');
+    /**
+     * @var string
+     */
+    protected $domain = 'https://api.pushsms.ru';
 
-        $this->client = new HttpClient([
-            'timeout'         => 5,
-            'connect_timeout' => 5,
-        ]);
+    public function __construct(array $config, HttpClient $client)
+    {
+        $this->token = Arr::get($config, 'access_token');
+        $this->client = $client;
+    }
+
+    /**
+     * @param array $params
+     * @return array
+     */
+    protected function prepareParams(array $params)
+    {
+        if (!isset($params['header'])) {
+            $params['header'] = [];
+        }
+        $params['header']['Authorization'] = 'Bearer ' . $this->token;
+
+        return $params;
     }
 
     /**
@@ -34,16 +47,19 @@ class PushSmsApi
      * @throws CouldNotSendNotification
      * @throws GuzzleException
      */
-    public function send($params)
+    public function send(ApiAction $action)
     {
-        if (Arr::has($params, 'phone')) {
-            $this->endpoint = 'https://api.pushsms.ru/api/v1/delivery';
-        } else {
-            $this->endpoint = 'https://api.pushsms.ru/api/v1/bulk_delivery';
-        }
-
         try {
-            $response = $this->client->request('POST', $this->endpoint, ['form_params' => array_filter($params), 'headers' => ['Authorization' => 'Bearer ' . $this->token]]);
+
+            $action->validate();
+
+
+            $params = $action->getParams();
+            $params = $this->prepareParams($params);
+
+            $response = $this
+                ->client
+                ->request($action->getMethod(), $this->domain . $action->getEndpoint(), $params);
 
             $response = json_decode((string)$response->getBody(), true);
 
