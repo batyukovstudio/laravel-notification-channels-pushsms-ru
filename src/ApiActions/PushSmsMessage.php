@@ -5,7 +5,7 @@ namespace NotificationChannels\PushSMS\ApiActions;
 use NotificationChannels\PushSMS\ApiActions\Interfaces\ApiAction;
 use NotificationChannels\PushSMS\Exceptions\CouldNotSendNotification;
 
-class PushSmsMessage implements ApiAction
+class PushSmsMessage extends CoreApiAction
 {
     /**
      * The message content.
@@ -18,23 +18,20 @@ class PushSmsMessage implements ApiAction
 
     /**
      * @param string $content
-     * @param $recipients
-     * @return static
      */
-    public static function create(string $content = '', $recipients)
+    public function setContent(string $content): self
     {
-        return new static($content, $recipients);
+        $this->content = $content;
+        return $this;
     }
 
     /**
-     * PushSmsMessage constructor.
-     * @param string $content
-     * @param $recipients
+     * @param mixed $recipients
      */
-    public function __construct(string $content = '', $recipients)
+    public function setRecipients($recipients): self
     {
-        $this->content = $content;
         $this->recipients = $recipients;
+        return $this;
     }
 
     /**

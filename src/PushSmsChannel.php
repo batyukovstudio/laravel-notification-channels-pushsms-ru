@@ -32,7 +32,11 @@ class PushSmsChannel
         $result = null;
         $to = $this->getRecipients($notifiable, $notification);
         if ($to) {
-            $message = PushSmsMessage::create($notification->{'toPushSms'}($notifiable), $to);
+
+            $message = PushSmsMessage::create()
+                ->setContent($notification->{'toPushSms'}($notifiable))
+                ->setRecipients($to);
+
             $result = $this->pushsms->send($message);
         }
 
