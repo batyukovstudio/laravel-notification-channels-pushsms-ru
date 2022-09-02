@@ -5,6 +5,7 @@ namespace NotificationChannels\PushSMS;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use NotificationChannels\PushSMS\Exceptions\CouldNotSendNotification;
 
 class PushSmsApi
@@ -45,13 +46,17 @@ class PushSmsApi
         try {
             $response = $this->client->request('POST', $this->endpoint, ['form_params' => array_filter($params), 'headers' => ['Authorization' => 'Bearer ' . $this->token]]);
 
-            $response = json_decode((string)$response->getBody(), true);
+            Log::info((string)$response->getBody());
+
+            $response = json_decode((string)$response->getBody(), true,512,JSON_OBJECT_AS_ARRAY);
+
+            Log::info($response);
 
             if (Arr::get($response, 'meta.code') !== 200) {
                 throw new \DomainException(Arr::get($response, 'meta.message'), Arr::get($response, 'meta.code'));
             }
 
-            return $response;
+            return json_decode((string)$response->getBody(), true);
         } catch (\DomainException $exception) {
             throw CouldNotSendNotification::pushSMSRespondedWithAnError($exception);
         } catch (\Exception $exception) {
