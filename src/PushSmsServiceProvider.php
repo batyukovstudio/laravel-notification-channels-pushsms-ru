@@ -11,14 +11,8 @@ class PushSmsServiceProvider extends ServiceProvider implements DeferrableProvid
     public function register(): void
     {
         $this->app->singleton(PushSmsApi::class, static function ($app) {
-            $config = $app['config']['pushsms'];
-
-            $client = new HttpClient([
-                'timeout' => $config['timeout'],
-                'connect_timeout' => $config['connect_timeout'],
-            ]);
-
-            return new PushSmsApi($config, $client);
+            $token = $app['config']['pushsms'];
+            return new PushSmsApi($token);
         });
     }
 

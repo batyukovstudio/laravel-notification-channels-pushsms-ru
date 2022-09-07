@@ -5,7 +5,11 @@ namespace NotificationChannels\PushSMS;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
+use NotificationChannels\PushSMS\ApiActions\DeliveryStatus;
+use NotificationChannels\PushSMS\ApiActions\GetBalance;
 use NotificationChannels\PushSMS\ApiActions\Interfaces\ApiAction;
+use NotificationChannels\PushSMS\ApiActions\OperatorSearch;
+use NotificationChannels\PushSMS\ApiActions\PushSmsMessage;
 use NotificationChannels\PushSMS\Exceptions\CouldNotSendNotification;
 
 class PushSmsApi
@@ -21,24 +25,68 @@ class PushSmsApi
      */
     protected $domain = 'https://api.pushsms.ru';
 
-    public function __construct(array $config, HttpClient $client)
+    public function __construct(array $config = null)
     {
-        $this->token = Arr::get($config, 'access_token');
-        $this->client = $client;
+
+        if (null === $config) {
+            $config = config('pushsms');
+        }
+
+        $this->token = $config['token'];
+        $this->client = new HttpClient([
+            'timeout' => $config('timeout'),
+            'connect_timeout' => $config('connect_timeout'),
+        ]);
     }
 
     /**
-     * @param array $params
-     * @return array
+     * @return mixed
+     * @throws CouldNotSendNotification
      */
-    protected function prepareParams(array $params)
+    public static function balance()
     {
-        if (!isset($params['header'])) {
-            $params['header'] = [];
-        }
-        $params['header']['Authorization'] = 'Bearer ' . $this->token;
+        $action = GetBalance::create();
+        $response = (new self())->request($action);
+        return $response;
+    }
 
-        return $params;
+    /**
+     * @param int $deliveryId
+     * @return mixed
+     * @throws CouldNotSendNotification
+     */
+    public static function deliveryStatus(int $deliveryId)
+    {
+        $action = DeliveryStatus::create()->setId($deliveryId);
+        $response = (new self())->request($action);
+        return $response;
+    }
+
+    /**
+     * @param string $phone
+     * @return mixed
+     * @throws CouldNotSendNotification
+     */
+    public static function operatorSearch(string $phone)
+    {
+        $action = OperatorSearch::create()->setPhone($phone);
+        $response = (new self())->request($action);
+        return $response;
+    }
+
+    /**
+     * @param string $content
+     * @param array $recipients
+     * @return mixed
+     * @throws CouldNotSendNotification
+     */
+    public static function pushSms(string $content, array $recipients)
+    {
+        $action = PushSmsMessage::create()
+            ->setContent($content)
+            ->setRecipients($recipients);
+        $response = (new self())->request($action);
+        return $response;
     }
 
     /**
@@ -47,7 +95,7 @@ class PushSmsApi
      * @throws CouldNotSendNotification
      * @throws GuzzleException
      */
-    public function send(ApiAction $action)
+    public function request(ApiAction $action)
     {
         try {
 
@@ -73,5 +121,19 @@ class PushSmsApi
         } catch (\Exception $exception) {
             throw CouldNotSendNotification::couldNotCommunicateWithPushSMS($exception);
         }
+    }
+
+    /**
+     * @param array $params
+     * @return array
+     */
+    protected function prepareParams(array $params)
+    {
+        if (!isset($params['header'])) {
+            $params['header'] = [];
+        }
+        $params['header']['Authorization'] = 'Bearer ' . $this->token;
+
+        return $params;
     }
 }

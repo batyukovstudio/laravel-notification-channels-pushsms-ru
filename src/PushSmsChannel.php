@@ -37,7 +37,7 @@ class PushSmsChannel
                 ->setContent($notification->{'toPushSms'}($notifiable))
                 ->setRecipients($to);
 
-            $result = $this->pushsms->send($message);
+            $result = $this->pushsms->request($message);
         }
 
         return $result;
