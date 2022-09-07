@@ -3,8 +3,8 @@
 namespace NotificationChannels\PushSMS;
 
 use Illuminate\Notifications\Notification;
+use NotificationChannels\PushSMS\ApiActions\PushSmsMessage;
 use NotificationChannels\PushSMS\Exceptions\CouldNotSendNotification;
-use NotificationChannels\PushSMS\PushSmsMessage;
 
 class PushSmsChannel
 {
@@ -28,17 +28,20 @@ class PushSmsChannel
      */
     public function send($notifiable, Notification $notification): ?array
     {
-        if (!($to = $this->getRecipients($notifiable, $notification))) {
-            return null;
+
+        $result = null;
+        $to = $this->getRecipients($notifiable, $notification);
+        if ($to) {
+
+            $message = PushSmsMessage::create()
+                ->setContent($notification->{'toPushSms'}($notifiable))
+                ->setRecipients($to);
+
+            $result = $this->pushsms->send($message);
         }
 
-        $message = $notification->{'toPushSms'}($notifiable);
+        return $result;
 
-        if (\is_string($message)) {
-            $message = new PushSmsMessage($message);
-        }
-
-        return $this->sendMessage($to, $message);
     }
 
     /**
@@ -53,31 +56,12 @@ class PushSmsChannel
     {
         $to = $notifiable->routeNotificationFor('pushsms', $notification);
 
+        $result = \is_array($to) ? $to : [$to];
+
         if (empty($to)) {
-            return [];
+            $result = [];
         }
-
-        return \is_array($to) ? $to : [$to];
+        return $result;
     }
 
-    protected function sendMessage($recipients, PushSmsMessage $message)
-    {
-        if (\mb_strlen($message->content) > 800) {
-            throw CouldNotSendNotification::contentLengthLimitExceeded();
-        }
-
-        if (count($recipients) > 1) {
-            $params = [
-                'phones_numbers' => implode(',', $recipients),
-                'text'           => $message->content,
-            ];
-        } else {
-            $params = [
-                'phone' => $recipients[0],
-                'text'  => $message->content,
-            ];
-        }
-
-        return $this->pushsms->send($params);
-    }
 }
