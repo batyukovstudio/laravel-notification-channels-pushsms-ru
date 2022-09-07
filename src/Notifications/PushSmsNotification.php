@@ -8,7 +8,7 @@ use NotificationChannels\PushSMS\Notifications\Interfaces\PushSmsable;
 
 abstract class PushSmsNotification extends Notification implements PushSmsable
 {
-    protected $content;
+    protected string $content;
 
     public function toPushSms($notifiable): PushSmsMessage
     {
