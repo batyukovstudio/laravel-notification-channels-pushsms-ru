@@ -8,6 +8,7 @@ use NotificationChannels\PushSMS\ApiActions\Interfaces\ApiAction;
 
 abstract class CoreApiAction implements ApiAction
 {
+
     private function __construct()
     {
         //
@@ -17,4 +18,5 @@ abstract class CoreApiAction implements ApiAction
     {
         return new static();
     }
+
 }

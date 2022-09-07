@@ -22,7 +22,7 @@ class CouldNotSendNotification extends Exception
     /**
      * Thrown when we're unable to communicate with pushsms.ru.
      *
-     * @param  DomainException  $exception
+     * @param DomainException $exception
      *
      * @return static
      */
@@ -38,7 +38,7 @@ class CouldNotSendNotification extends Exception
     /**
      * Thrown when we're unable to communicate with pushsms.ru.
      *
-     * @param  Exception  $exception
+     * @param Exception $exception
      *
      * @return static
      */

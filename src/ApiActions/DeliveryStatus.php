@@ -3,9 +3,6 @@
 
 namespace NotificationChannels\PushSMS\ApiActions;
 
-
-use NotificationChannels\PushSMS\ApiActions\Interfaces\ApiAction;
-
 class DeliveryStatus extends CoreApiAction
 {
 

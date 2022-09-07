@@ -3,7 +3,6 @@
 
 namespace NotificationChannels\PushSMS\ApiActions;
 
-
 class GetBalance extends CoreApiAction
 {
     /**

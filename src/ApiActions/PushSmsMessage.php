@@ -2,7 +2,6 @@
 
 namespace NotificationChannels\PushSMS\ApiActions;
 
-use NotificationChannels\PushSMS\ApiActions\Interfaces\ApiAction;
 use NotificationChannels\PushSMS\Exceptions\CouldNotSendNotification;
 
 class PushSmsMessage extends CoreApiAction
