@@ -33,10 +33,10 @@ class PushSmsApi
      */
     protected function prepareParams(array $params): array
     {
-        if (!isset($params['header'])) {
-            $params['header'] = [];
+        if (!isset($params['headers'])) {
+            $params['headers'] = [];
         }
-        $params['header']['Authorization'] = 'Bearer ' . $this->token;
+        $params['headers']['Authorization'] = 'Bearer ' . $this->token;
 
         return $params;
     }
