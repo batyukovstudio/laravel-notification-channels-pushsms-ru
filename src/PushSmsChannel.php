@@ -38,6 +38,8 @@ class PushSmsChannel
                 $message = PushSmsMessage::create()
                     ->setContent($message)
                     ->setRecipients($to);
+            } else {
+                $message->setRecipients($to);
             }
 
             $result = $this->pushsms->send($message);
