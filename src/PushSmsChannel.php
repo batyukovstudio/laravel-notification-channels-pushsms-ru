@@ -28,20 +28,22 @@ class PushSmsChannel
      */
     public function send($notifiable, Notification $notification): ?array
     {
-
         $result = null;
         $to     = $this->getRecipients($notifiable, $notification);
 
         if ($to) {
-            $message = PushSmsMessage::create()
-                ->setContent($notification->{'toPushSms'}($notifiable))
-                ->setRecipients($to);
+            $message = $notification->{'toPushSms'}($notifiable);
+
+            if (is_string($message)) {
+                $message = PushSmsMessage::create()
+                    ->setContent($message)
+                    ->setRecipients($to);
+            }
 
             $result = $this->pushsms->send($message);
         }
 
         return $result;
-
     }
 
     /**
