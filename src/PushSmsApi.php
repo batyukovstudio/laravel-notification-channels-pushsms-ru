@@ -23,7 +23,7 @@ class PushSmsApi
 
     public function __construct(array $config, HttpClient $client)
     {
-        $this->token = Arr::get($config, 'access_token');
+        $this->token  = Arr::get($config, 'access_token');
         $this->client = $client;
     }
 
@@ -31,7 +31,7 @@ class PushSmsApi
      * @param array $params
      * @return array
      */
-    protected function prepareParams(array $params)
+    protected function prepareParams(array $params): array
     {
         if (!isset($params['header'])) {
             $params['header'] = [];
@@ -42,7 +42,7 @@ class PushSmsApi
     }
 
     /**
-     * @param $params
+     * @param ApiAction $action
      * @return mixed
      * @throws CouldNotSendNotification
      * @throws GuzzleException
@@ -50,9 +50,7 @@ class PushSmsApi
     public function send(ApiAction $action)
     {
         try {
-
             $action->validate();
-
 
             $params = $action->getParams();
             $params = $this->prepareParams($params);
@@ -64,7 +62,7 @@ class PushSmsApi
             $response = json_decode((string)$response->getBody(), true);
 
             if (Arr::get($response, 'meta.code') !== 200) {
-                throw new \DomainException(Arr::get($response, 'meta.message'), Arr::get($response, 'meta.code'));
+                throw new \DomainException(Arr::get($response, 'meta.message'), Arr::get($response, 'meta.status_id'));
             }
 
             return $response;

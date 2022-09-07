@@ -2,6 +2,7 @@
 
 namespace NotificationChannels\PushSMS;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\PushSMS\ApiActions\PushSmsMessage;
 use NotificationChannels\PushSMS\Exceptions\CouldNotSendNotification;
@@ -19,20 +20,19 @@ class PushSmsChannel
     /**
      * Send the given notification.
      *
-     * @param mixed $notifiable
+     * @param $notifiable
      * @param Notification $notification
-     *
      * @return array|null
      * @throws CouldNotSendNotification
-     *
+     * @throws GuzzleException
      */
     public function send($notifiable, Notification $notification): ?array
     {
 
         $result = null;
-        $to = $this->getRecipients($notifiable, $notification);
-        if ($to) {
+        $to     = $this->getRecipients($notifiable, $notification);
 
+        if ($to) {
             $message = PushSmsMessage::create()
                 ->setContent($notification->{'toPushSms'}($notifiable))
                 ->setRecipients($to);
@@ -47,10 +47,9 @@ class PushSmsChannel
     /**
      * Gets a list of phones from the given notifiable.
      *
-     * @param mixed $notifiable
+     * @param $notifiable
      * @param Notification $notification
-     *
-     * @return string[]
+     * @return array
      */
     protected function getRecipients($notifiable, Notification $notification): array
     {

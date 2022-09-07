@@ -18,6 +18,7 @@ class PushSmsMessage extends CoreApiAction
 
     /**
      * @param string $content
+     * @return $this
      */
     public function setContent(string $content): self
     {
@@ -38,10 +39,9 @@ class PushSmsMessage extends CoreApiAction
      * Set the message content.
      *
      * @param string $content
-     *
      * @return $this
      */
-    public function content($content)
+    public function content(string $content): PushSmsMessage
     {
         $this->content = $content;
 
@@ -62,9 +62,10 @@ class PushSmsMessage extends CoreApiAction
     public function getEndpoint(): string
     {
         $recipients = $this->recipients;
-        $result = '/api/v1/bulk_delivery';
 
-        if (isset($recipients['phone'])) {
+        if (count($recipients) > 1) {
+            $result = '/api/v1/bulk_delivery';
+        } else {
             $result = '/api/v1/delivery';
         }
 
@@ -81,12 +82,12 @@ class PushSmsMessage extends CoreApiAction
         if (count($recipients) > 1) {
             $params = [
                 'phones_numbers' => implode(',', $recipients),
-                'text' => $this->content,
+                'text'           => $this->content,
             ];
         } else {
             $params = [
                 'phone' => $recipients[0],
-                'text' => $this->content,
+                'text'  => $this->content,
             ];
         }
 

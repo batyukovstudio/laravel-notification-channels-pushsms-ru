@@ -8,13 +8,16 @@ use GuzzleHttp\Client as HttpClient;
 
 class PushSmsServiceProvider extends ServiceProvider implements DeferrableProvider
 {
+    /**
+     * @return void
+     */
     public function register(): void
     {
         $this->app->singleton(PushSmsApi::class, static function ($app) {
             $config = $app['config']['pushsms'];
 
             $client = new HttpClient([
-                'timeout' => $config['timeout'],
+                'timeout'         => $config['timeout'],
                 'connect_timeout' => $config['connect_timeout'],
             ]);
 
@@ -22,16 +25,22 @@ class PushSmsServiceProvider extends ServiceProvider implements DeferrableProvid
         });
     }
 
+    /**
+     * @return void
+     */
     public function boot()
     {
         $this->mergeConfigFrom(__DIR__ . '/../Config/pushsms.php', 'pushsms');
 
         $this->publishes([
-            __DIR__ . '/../Config/pushsms.php' => config_path('loggable.php'),
+            __DIR__ . '/../Config/pushsms.php' => config_path('pushsms.php'),
         ], 'configs');
 
     }
 
+    /**
+     * @return array
+     */
     public function provides(): array
     {
         return [
