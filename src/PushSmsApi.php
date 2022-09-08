@@ -5,7 +5,11 @@ namespace NotificationChannels\PushSMS;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
+use NotificationChannels\PushSMS\ApiActions\DeliveryStatus;
+use NotificationChannels\PushSMS\ApiActions\GetBalance;
 use NotificationChannels\PushSMS\ApiActions\Interfaces\ApiAction;
+use NotificationChannels\PushSMS\ApiActions\OperatorSearch;
+use NotificationChannels\PushSMS\ApiActions\PushSmsMessage;
 use NotificationChannels\PushSMS\Exceptions\CouldNotSendNotification;
 
 class PushSmsApi
@@ -21,10 +25,18 @@ class PushSmsApi
      */
     protected $domain = 'https://api.pushsms.ru';
 
-    public function __construct(array $config, HttpClient $client)
+    public function __construct(array $config = null)
     {
-        $this->token  = Arr::get($config, 'access_token');
-        $this->client = $client;
+        if (null === $config) {
+            $config = config('pushsms');
+        }
+
+        $this->token = Arr::get($config, 'access_token');
+
+        $this->client = new HttpClient([
+            'timeout' => $config['timeout'],
+            'connect_timeout' => $config['connect_timeout'],
+        ]);;
     }
 
     /**
@@ -41,13 +53,42 @@ class PushSmsApi
         return $params;
     }
 
+
+    private static function create(): self
+    {
+        return new self();
+    }
+
+
+    public static function operatorSearch(string $phone){
+        $action = OperatorSearch::create()->setPhone($phone);
+        return self::create()->request($action);
+    }
+
+    public static function deliveryStatus(int $id)
+    {
+        $action = DeliveryStatus::create()->setId($id);
+        return self::create()->request($action);
+    }
+
+    public static function balance()
+    {
+        $action = GetBalance::create();
+        return self::create()->request($action);
+    }
+
+    public static function send(string $content, array $recipients)
+    {
+        $action = PushSmsMessage::create()->setContent($content)->setRecipients($recipients);
+        return self::create()->request($action);
+    }
+
     /**
      * @param ApiAction $action
      * @return mixed
      * @throws CouldNotSendNotification
-     * @throws GuzzleException
      */
-    public function send(ApiAction $action)
+    public function request(ApiAction $action)
     {
         try {
             $action->validate();
