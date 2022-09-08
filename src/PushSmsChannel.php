@@ -16,16 +16,14 @@ class PushSmsChannel
         $this->pushsms = $pushsms;
     }
 
+
     /**
-     * Send the given notification.
-     *
      * @param $notifiable
      * @param PushSmsable $notification
      * @return array|null
      * @throws CouldNotSendNotification
-     * @throws GuzzleException
      */
-    public function send($notifiable, PushSmsable $notification): ?array
+    public function request($notifiable, PushSmsable $notification): ?array
     {
         $result = null;
         $to     = $this->getRecipients($notifiable, $notification);
@@ -34,7 +32,7 @@ class PushSmsChannel
             $message = $notification->toPushSms($notifiable);
             $message->setRecipients($to);
 
-            $result = $this->pushsms->send($message);
+            $result = $this->pushsms->request($message);
         }
 
         return $result;
