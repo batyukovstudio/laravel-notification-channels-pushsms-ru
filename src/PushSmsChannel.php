@@ -23,7 +23,7 @@ class PushSmsChannel
      * @return array|null
      * @throws CouldNotSendNotification
      */
-    public function request($notifiable, PushSmsable $notification): ?array
+    public function send($notifiable, PushSmsable $notification): ?array
     {
         $result = null;
         $to     = $this->getRecipients($notifiable, $notification);
