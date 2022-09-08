@@ -3,9 +3,6 @@
 
 namespace NotificationChannels\PushSMS\ApiActions;
 
-
-use NotificationChannels\PushSMS\ApiActions\Interfaces\ApiAction;
-
 class OperatorSearch extends CoreApiAction
 {
 
@@ -20,16 +17,25 @@ class OperatorSearch extends CoreApiAction
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getMethod(): string
     {
         return 'GET';
     }
 
+    /**
+     * @return string
+     */
     public function getEndpoint(): string
     {
         return '/api/v1/operators/search';
     }
 
+    /**
+     * @return array
+     */
     public function getParams(): array
     {
         return [
@@ -37,6 +43,9 @@ class OperatorSearch extends CoreApiAction
         ];
     }
 
+    /**
+     * @return bool
+     */
     public function validate(): bool
     {
         return true;

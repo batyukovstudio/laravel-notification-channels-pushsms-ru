@@ -3,9 +3,6 @@
 
 namespace NotificationChannels\PushSMS\ApiActions;
 
-
-use NotificationChannels\PushSMS\ApiActions\Interfaces\ApiAction;
-
 class DeliveryStatus extends CoreApiAction
 {
 
@@ -20,24 +17,33 @@ class DeliveryStatus extends CoreApiAction
         return $this;
     }
 
-
+    /**
+     * @return string
+     */
     public function getMethod(): string
     {
         return 'GET';
     }
 
+    /**
+     * @return string
+     */
     public function getEndpoint(): string
     {
-        return '/api/v1/delivery/:id';
+        return '/api/v1/delivery/' . $this->id;
     }
 
+    /**
+     * @return array
+     */
     public function getParams(): array
     {
-        return [
-            'id' => $this->id,
-        ];
+        return [];
     }
 
+    /**
+     * @return bool
+     */
     public function validate(): bool
     {
         return true;

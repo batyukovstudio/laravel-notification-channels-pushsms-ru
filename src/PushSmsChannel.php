@@ -2,9 +2,9 @@
 
 namespace NotificationChannels\PushSMS;
 
-use Illuminate\Notifications\Notification;
-use NotificationChannels\PushSMS\ApiActions\PushSmsMessage;
+use GuzzleHttp\Exception\GuzzleException;
 use NotificationChannels\PushSMS\Exceptions\CouldNotSendNotification;
+use NotificationChannels\PushSMS\Notifications\Interfaces\PushSmsable;
 
 class PushSmsChannel
 {
@@ -19,40 +19,35 @@ class PushSmsChannel
     /**
      * Send the given notification.
      *
-     * @param mixed $notifiable
-     * @param Notification $notification
-     *
+     * @param $notifiable
+     * @param PushSmsable $notification
      * @return array|null
      * @throws CouldNotSendNotification
-     *
+     * @throws GuzzleException
      */
-    public function send($notifiable, Notification $notification): ?array
+    public function send($notifiable, PushSmsable $notification): ?array
     {
-
         $result = null;
-        $to = $this->getRecipients($notifiable, $notification);
-        if ($to) {
+        $to     = $this->getRecipients($notifiable, $notification);
 
-            $message = PushSmsMessage::create()
-                ->setContent($notification->{'toPushSms'}($notifiable))
-                ->setRecipients($to);
+        if ($to) {
+            $message = $notification->toPushSms($notifiable);
+            $message->setRecipients($to);
 
             $result = $this->pushsms->request($message);
         }
 
         return $result;
-
     }
 
     /**
      * Gets a list of phones from the given notifiable.
      *
-     * @param mixed $notifiable
-     * @param Notification $notification
-     *
-     * @return string[]
+     * @param $notifiable
+     * @param PushSmsable $notification
+     * @return array
      */
-    protected function getRecipients($notifiable, Notification $notification): array
+    protected function getRecipients($notifiable, PushSmsable $notification): array
     {
         $to = $notifiable->routeNotificationFor('pushsms', $notification);
 
