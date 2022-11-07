@@ -82,11 +82,13 @@ class PushSmsMessage extends CoreApiAction
             $params = [
                 'phones_numbers' => implode(',', $recipients),
                 'text'           => $this->content,
+                'sender_name' => config('pushsms.sender_name'),
             ];
         } else {
             $params = [
                 'phone' => $recipients[0],
                 'text'  => $this->content,
+                'sender_name' => config('pushsms.sender_name'),
             ];
         }
 
