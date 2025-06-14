@@ -4,7 +4,7 @@
     "keywords": ["laravel", "notifications", "pushsms"],
     "homepage": "https://github.com/batyukovstudio/laravel-notification-channels-pushsms-ru",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "12.0.0",
     "authors": [
         {
             "name": "batyukovstudio",
